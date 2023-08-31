@@ -40,7 +40,7 @@ WHERE Genre='Action' OR Genre='Adventure'
 Order by Production_Cost DESC
 _________________________________________________________________________________________________________________________________________________________________________________
 
-## R Scripts & Outputs
+## R Scripts & Outputs 
 
 > - Inserting table in R
 
