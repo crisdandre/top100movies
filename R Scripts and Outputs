@@ -1,0 +1,142 @@
+## R Scripts & Outputs 
+
+> - Inserting table in R
+
+topmovies <- read_csv("Data Analyst/Project 1 - Top 500 Movies/topmovies.csv", 
++     col_types = cols(Genre = col_factor(levels = c("Action", 
++         "Adventure", "Black Comedy", "Comedy", 
++         "Drama", "Horror", "Musical", "Romantic Comedy", 
++         "Thriller/Suspense", "Western")), 
++         Year = col_character(), `Production Cost` = col_number(), 
++         Worldwide_Gross = col_number(), ROI = col_number(), 
++         Runtime = col_number(), `Average rating` = col_number()))
+View(topmovies)   
+
+
+> - Rename "Average rating" column
+
+colnames(top100)[colnames(top100)=='Average rating']='Rating'
+
+attach(topmovies)
+
+
+> - Re-checking that factors and levels were set properly for ANOVA
+
+str(top100)
+spc_tbl_ [200 × 9] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
+ $ Title          : chr [1:200] "Avatar" "Spider-Man: No Way Home" "Top Gun: Maverick" "Furious 7" ...
+ $ Genre          : Factor w/ 2 levels "Action","Adventure": 1 1 1 1 1 1 1 1 1 1 ...
+ $ Year           : num [1:200] 2009 2021 2022 2015 2015 ...
+ $ Cost           : num [1:200] 2.37e+08 2.00e+08 1.70e+08 1.90e+08 2.15e+08 1.70e+08 1.16e+08 1.10e+08 1.60e+08 1.60e+08 ...
+ $ Worldwide_Gross: num [1:200] 2.91e+09 1.91e+09 1.48e+09 1.51e+09 1.67e+09 ...
+ $ Runtime        : num [1:200] 162 148 131 137 124 128 112 119 143 129 ...
+ $ Rating         : num [1:200] 7.6 8 8.3 7.2 6.7 6.5 6.8 7.5 6.9 7.5 ...
+ $ Cost_range     : Factor w/ 4 levels "Low","Medium",..: 4 4 3 3 4 3 2 2 3 3 ...
+ $ ROI            : num [1:200] 1128 856 770 697 677 ...
+ - attr(*, "spec")=List of 3
+  ..$ cols   :List of 9
+  .. ..$ Title          : list()
+  .. .. ..- attr(*, "class")= chr [1:2] "collector_character" "collector"
+  .. ..$ Genre          :List of 3
+  .. .. ..$ levels    : chr [1:2] "Action" "Adventure"
+  .. .. ..$ ordered   : logi FALSE
+  .. .. ..$ include_na: logi FALSE
+  .. .. ..- attr(*, "class")= chr [1:2] "collector_factor" "collector"
+  .. ..$ Year           : list()
+  .. .. ..- attr(*, "class")= chr [1:2] "collector_double" "collector"
+  .. ..$ Cost           : list()
+  .. .. ..- attr(*, "class")= chr [1:2] "collector_number" "collector"
+  .. ..$ Worldwide_Gross: list()
+  .. .. ..- attr(*, "class")= chr [1:2] "collector_number" "collector"
+  .. ..$ Runtime        : list()
+  .. .. ..- attr(*, "class")= chr [1:2] "collector_number" "collector"
+  .. ..$ Average rating : list()
+  .. .. ..- attr(*, "class")= chr [1:2] "collector_number" "collector"
+  .. ..$ Cost_range     :List of 3
+  .. .. ..$ levels    : chr [1:4] "Low" "Medium" "High" "Very High"
+  .. .. ..$ ordered   : logi FALSE
+  .. .. ..$ include_na: logi FALSE
+  .. .. ..- attr(*, "class")= chr [1:2] "collector_factor" "collector"
+  .. ..$ ROI            : list()
+  .. .. ..- attr(*, "class")= chr [1:2] "collector_number" "collector"
+  ..$ default: list()
+  .. ..- attr(*, "class")= chr [1:2] "collector_guess" "collector"
+  ..$ delim  : chr ","
+  ..- attr(*, "class")= chr "col_spec"
+ - attr(*, "problems")=<externalptr> 
+
+
+> - Two-way ANOVA of Avg Rating with a 95% confidence level using factor Genre (two levels: Action and Adventure) and Cost_range (four levels: Low, Medium, High and Very High) 
+
+anova.rating<-aov(Rating~Genre*Cost_range)
+summary(anova.rating)
+                  Df Sum Sq Mean Sq F value Pr(>F)  
+Genre              1   1.92  1.9208   4.129 0.0435 *
+Cost_range         3   3.53  1.1761   2.528 0.0587 .
+Genre:Cost_range   3   2.10  0.6985   1.501 0.2156  
+Residuals        192  89.33  0.4652                 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+**Genre factor is significant!**
+
+> - Checking ANOVA assumption of normally distributed residuals 
+
+plot(anova.rating,2)
+anova.rating.res<-residuals(object=anova.rating)
+shapiro.test(anova.rating.res)
+
+	Shapiro-Wilk normality test
+
+data:  anova.rating.res
+W = 0.99139, p-value = 0.2819
+
+**Residuals are normally distributed**
+
+> - Cheching ANOVA assumpton of homogeneity of variance for the groups
+
+plot(anova.rating,1)
+plot(anova.rating,1)
+leveneTest(Rating~Genre*Cost_range)
+Levene's Test for Homogeneity of Variance (center = median)
+       Df F value Pr(>F)
+group   7  1.6773 0.1166
+      192     
+
+**Groups are have the same variance**
+
+> - Additional analysis: multiple comparison between Cost_range levels (significant at 90% confidence level)
+
+tukey<-TukeyHSD(anova.rating,"Cost_range")
+print(tukey)
+  Tukey multiple comparisons of means
+    95% family-wise confidence level
+
+Fit: aov(formula = Rating ~ Genre * Cost_range)
+
+$Cost_range
+                         diff          lwr       upr     p adj
+Medium-Low       -0.225292237 -0.775946875 0.3253624 0.7140201
+High-Low          0.081104167 -0.474989664 0.6371980 0.9815526
+Very High-Low     0.003705882 -0.563468301 0.5708801 0.9999982
+High-Medium       0.306396404  0.003683623 0.6091092 0.0460668
+Very High-Medium  0.228998120 -0.093618113 0.5516144 0.2580608
+Very High-High   -0.077398284 -0.409213071 0.2544165 0.9305378
+		
+**At 90% confidence level, only the Rating for Medium Production Cost and High Production Cost differ** 
+
+
+>- Pearson's Correlation Coefficient matrix for Cost, Worldwide Gross, Runtime, Rating and ROI (Return of Investment)
+
+top100_correlation <- read_csv("Data Analyst/Project 1 - Top 500 Movies/top100 correlation.csv", 
++     col_types = cols(Cost = col_number(), 
++         Worldwide_Gross = col_number(), Runtime = col_number(), 
++         Rating = col_number(), ROI = col_number()))
+View(top100_correlation)                                                                                                                   
+cor(top100_correlation)
+                       Cost Worldwide_Gross   Runtime    Rating         ROI
+Cost             1.00000000       0.6529855 0.3313733 0.1415618 -0.05054446
+Worldwide_Gross  0.65298546       1.0000000 0.3632929 0.3509355  0.67313703
+Runtime          0.33137333       0.3632929 1.0000000 0.2978657  0.24570360
+Rating           0.14156181       0.3509355 0.2978657 1.0000000  0.37918471
+ROI             -0.05054446       0.6731370 0.2457036 0.3791847  1.00000000			
