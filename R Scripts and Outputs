@@ -1,4 +1,4 @@
-> - Inserting table in R
+--> Inserting table in R
 
 topmovies <- read_csv("Data Analyst/Project 1 - Top 500 Movies/topmovies.csv", 
 +     col_types = cols(Genre = col_factor(levels = c("Action", 
@@ -11,14 +11,14 @@ topmovies <- read_csv("Data Analyst/Project 1 - Top 500 Movies/topmovies.csv",
 View(topmovies)   
 
 
-> - Rename "Average rating" column
+--> Rename "Average rating" column
 
 colnames(top100)[colnames(top100)=='Average rating']='Rating'
 
 attach(topmovies)
 
 
-> - Re-checking that factors and levels were set properly for ANOVA
+--> Re-checking that factors and levels were set properly for ANOVA
 
 str(top100)
 spc_tbl_ [200 × 9] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
@@ -64,7 +64,7 @@ spc_tbl_ [200 × 9] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
  - attr(*, "problems")=<externalptr> 
 
 
-> - Two-way ANOVA of Avg Rating with a 95% confidence level using factor Genre (two levels: Action and Adventure) and Cost_range (four levels: Low, Medium, High and Very High) 
+--> Two-way ANOVA of Avg Rating with a 95% confidence level using factor Genre (two levels: Action and Adventure) and Cost_range (four levels: Low, Medium, High and Very High) 
 
 anova.rating<-aov(Rating~Genre*Cost_range)
 summary(anova.rating)
@@ -78,7 +78,7 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
 
 **Genre factor is significant!**
 
-> - Checking ANOVA assumption of normally distributed residuals 
+--> Checking ANOVA assumption of normally distributed residuals 
 
 plot(anova.rating,2)
 anova.rating.res<-residuals(object=anova.rating)
@@ -91,7 +91,8 @@ W = 0.99139, p-value = 0.2819
 
 **Residuals are normally distributed**
 
-> - Cheching ANOVA assumpton of homogeneity of variance for the groups
+
+--> Cheching ANOVA assumpton of homogeneity of variance for the groups
 
 plot(anova.rating,1)
 plot(anova.rating,1)
@@ -103,7 +104,8 @@ group   7  1.6773 0.1166
 
 **Groups are have the same variance**
 
-> - Additional analysis: multiple comparison between Cost_range levels (significant at 90% confidence level)
+
+--> Additional analysis: multiple comparison between Cost_range levels (significant at 90% confidence level)
 
 tukey<-TukeyHSD(anova.rating,"Cost_range")
 print(tukey)
@@ -124,7 +126,7 @@ Very High-High   -0.077398284 -0.409213071 0.2544165 0.9305378
 **At 90% confidence level, only the Rating for Medium Production Cost and High Production Cost differ** 
 
 
->- Pearson's Correlation Coefficient matrix for Cost, Worldwide Gross, Runtime, Rating and ROI (Return of Investment)
+--> Pearson's Correlation Coefficient matrix for Cost, Worldwide Gross, Runtime, Rating and ROI (Return of Investment)
 
 top100_correlation <- read_csv("Data Analyst/Project 1 - Top 500 Movies/top100 correlation.csv", 
 +     col_types = cols(Cost = col_number(), 
